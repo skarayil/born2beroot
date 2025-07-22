@@ -144,7 +144,7 @@ Bu bilgileri tam olarak bu sırada göstermeli:
 
 ---
 
-## 🎁 BONUS KISMASI - Sadece Mandatory Perfect İse!
+## 🎁 BONUS KISIM - Sadece Mandatory Perfect İse!
 
 **⚠️ UYARI:** Bonus sadece mandatory kısım MÜKEMMEL ise değerlendirilir!
 
