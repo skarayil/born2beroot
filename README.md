@@ -1,4 +1,5 @@
 # Born2beRoot Yol Haritası ve Yapılacaklar Listesi
+
 🎯 **Proje Genel Bakış - Version 3.6**  
 Born2beroot, sistem yönetimi ve güvenlik temellerini öğretmeyi amaçlayan bir projedir. Sanal makine üzerinde minimum service ile güvenli bir server kurulumu yapacaksınız.  
 ⚠️ **ÖNEMLİ**: Hiçbir grafik arayüz (X.org vb.) kurulmayacak - aksi halde 0 puan!
@@ -260,10 +261,14 @@ Bu bilgileri tam olarak bu sırada göstermeli:
 ---
 
 ## 📚 Faydalı Kaynaklar
-- [Debian Documentation](https://www.debian.org/doc/)
-- [UFW Manual](man ufw)
-- [SSH Config](man sshd_config)
-- [Crontab](man crontab)
+- Debian Documentation: `https://www.debian.org/doc/`
+- UFW Manual: `man ufw`
+- SSH Config: `man sshd_config`
+- Crontab: `man crontab`
 - Born2beroot subject dosyası (42 intra)
 
 **Not:** Bu liste genel bir rehberdir. 42'nin güncel subject dosyasını mutlaka kontrol et ve ona göre ilerle!
+
+---
+
+### Created by Sude Naz Karayıldırım
