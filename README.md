@@ -1,7 +1,9 @@
 # Born2beRoot Yol Haritası ve Yapılacaklar Listesi
 
-🎯 **Proje Genel Bakış - Version 3.6**  
+🎯 **Proje Genel Bakış - Version 3.6**
+
 Born2beroot, sistem yönetimi ve güvenlik temellerini öğretmeyi amaçlayan bir projedir. Sanal makine üzerinde minimum service ile güvenli bir server kurulumu yapacaksınız.  
+
 ⚠️ **ÖNEMLİ**: Hiçbir grafik arayüz (X.org vb.) kurulmayacak - aksi halde 0 puan!
 
 ---
