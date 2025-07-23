@@ -908,9 +908,10 @@ HOME_MODE       0750  # Home directory permissions
 # Shell timeout
 TMOUT           600   # Shell timeout (10 minutes)
 PAM Password Quality (pwquality): /etc/security/pwquality.conf:
-
+```
 
 bash
+```
 # Password length
 minlen = 10              # Minimum 10 characters
 
@@ -937,9 +938,10 @@ minclass = 0             # Min character classes required
 reject_username          # Reject if contains username
 gecoscheck = 1           # Check against GECOS fields
 Born2beroot Password Policy Implementation:
-
+```
 
 bash
+```
 # 1. /etc/login.defs düzenleme
 sudo sed -i 's/^PASS_MAX_DAYS.*/PASS_MAX_DAYS\t30/' /etc/login.defs
 sudo sed -i 's/^PASS_MIN_DAYS.*/PASS_MIN_DAYS\t2/' /etc/login.defs  
@@ -965,9 +967,10 @@ sudo chage -M 30 root
 sudo chage -m 2 root
 sudo chage -W 7 root
 Password Commands:
-
+```
 
 bash
+```
 # Password change
 passwd                    # Own password
 sudo passwd username      # Other user's password
@@ -991,9 +994,10 @@ passwd -l username        # Lock account
 passwd -u username        # Unlock account
 passwd -S username        # Show status
 Password Hash Analysis:
-
+```
 
 bash
+```
 # /etc/shadow örneği
 sudenaz42:$6$rounds=656000$YourSalt$HashValue:19000:2:30:7:::
 
@@ -1006,7 +1010,9 @@ Breakdown:
 - 2 = Min days before change allowed
 - 30 = Max days password valid
 - 7 = Warning days before expiry
-8. 🔒 Security Modules (AppArmor vs SELinux)
+```
+
+## 8. 🔒 Security Modules (AppArmor vs SELinux)
 AppArmor (Application Armor)
 AppArmor, uygulamaları kısıtlayarak sistem güvenliğini artıran Mandatory Access Control (MAC) sistemidir.
 AppArmor Çalışma Prensibi:
@@ -1030,6 +1036,7 @@ AppArmor Profile Structure:
 
 
 bash
+```
 #include <tunables/global>
 
 /usr/sbin/nginx {
@@ -1050,10 +1057,11 @@ bash
   deny /etc/shadow r,
   deny /home/** r,
 }
+```
+
 AppArmor Commands:
-
-
 bash
+```
 # Status kontrolü
 sudo apparmor_status
 
@@ -1078,10 +1086,12 @@ Performance	Lower overhead	Higher overhead
 Flexibility	Limited	Very flexible
 Learning Curve	Easy	Steep
 Default in	Debian/Ubuntu	RHEL/Rocky
+```
+
 SELinux Contexts:
 
-
 bash
+```
 # SELinux context format
 user:role:type:level
 
@@ -1093,10 +1103,12 @@ SELinux Modes:
 1. Enforcing: SELinux aktif, ihlaller engellenr
 2. Permissive: SELinux pasif, sadece loglar
 3. Disabled: SELinux kapalı
+```
+
 SELinux Commands:
 
-
 bash
+```
 # Status kontrolü
 sestatus
 getenforce
@@ -1118,9 +1130,9 @@ setsebool httpd_can_network_connect on  # Set boolean
 sealert -a /var/log/audit/audit.log
 Born2beroot Security Module Setup:
 Debian (AppArmor):
-
-
+```
 bash
+```
 # AppArmor kurulum kontrolü
 sudo apt update
 sudo apt install apparmor apparmor-utils
@@ -1132,9 +1144,10 @@ sudo systemctl start apparmor
 # Status kontrolü
 sudo apparmor_status
 Rocky Linux (SELinux):
-
+```
 
 bash
+```
 # SELinux durumu kontrol
 sestatus
 
@@ -1144,7 +1157,10 @@ SELINUXTYPE=targeted
 
 # Reboot sonrası aktif olur
 sudo reboot
-9. 📊 System Monitoring Script
+```
+
+## 9. 📊 System Monitoring Script
+
 Monitoring Script Gereksinimleri
 Born2beroot projesinde her 10 dakikada bir sistem bilgilerini gösteren monitoring.sh scripti gerekiyor.
 Script'in göstermesi gereken bilgiler:
@@ -1165,14 +1181,17 @@ Architecture ve Kernel:
 
 
 bash
+```
 uname -a    # Tüm sistem bilgileri
 uname -m    # Machine architecture (x86_64)
 uname -r    # Kernel release (5.10.0-18-amd64)
 uname -s    # Kernel name (Linux)
+```
+
 CPU Information:
 
-
 bash
+```
 # Fiziksel CPU sayısı
 grep "physical id" /proc/cpuinfo | sort -u | wc -l
 
@@ -1182,10 +1201,12 @@ grep -c ^processor /proc/cpuinfo
 # Alternatif yöntem
 lscpu | grep "CPU(s):"
 nproc    # Logical CPU count
+```
+
 Memory Information:
 
-
 bash
+```
 # RAM bilgileri
 free -m              # MB cinsinden
 free -h              # Human readable
@@ -1195,10 +1216,11 @@ cat /proc/meminfo    # Detaylı bilgi
 used_ram=$(free -m | awk 'NR==2{printf "%.0f", $3}')
 total_ram=$(free -m | awk 'NR==2{printf "%.0f", $2}')
 ram_percent=$(free | awk 'NR==2{printf "%.2f", $3/$2*100.0}')
+```
 Disk Information:
 
-
 bash
+```
 # Disk usage
 df -h               # Human readable  
 df -BG             # Gigabyte cinsinden
@@ -1208,10 +1230,12 @@ du -sh /           # Root directory size
 disk_used=$(df -BG | grep '^/dev/' | awk '{used += $3} END {print used}')
 disk_total=$(df -BG | grep '^/dev/' | awk '{total += $2} END {print total}')
 disk_percent=$(df | grep '^/dev/' | awk '{used += $3; total += $2} END {printf "%.0f", used/total*100}')
+```
+
 CPU Load:
 
-
 bash
+```
 # CPU usage
 top -bn1 | grep "Cpu(s)" | awk '{print $2}' | cut -d'%' -f1
 
@@ -1220,46 +1244,53 @@ uptime | awk -F'load average:' '{ print $2 }' | cut -d, -f1
 
 # vmstat ile
 vmstat 1 2 | tail -1 | awk '{printf "%.1f%%", 100-$15}'
+```
 System Uptime/Reboot:
 
-
 bash
+```
 # Last boot time
 who -b | awk '{print $3, $4}'
 uptime -s          # System start time
 last reboot | head -1    # Last reboot info
+```
 LVM Status:
 
-
 bash
+```
 # LVM aktif mi?
 if [ $(lsblk | grep "lvm" | wc -l) -eq 0 ]; then
     echo "no"
 else  
     echo "yes"
 fi
+```
+
 Network Connections:
 
-
 bash
+```
 # Active TCP connections
 ss -ta | grep ESTAB | wc -l
 netstat -tn | grep ESTABLISHED | wc -l
 
 # Alternatif
 cat /proc/net/tcp | wc -l
+```
+
 Active Users:
 
-
 bash
+```
 # Logged in users
 who | wc -l
 users | wc -w
 w | grep -v ^USER | wc -l
+```
 Network Interface:
 
-
 bash
+```
 # IP address
 hostname -I | awk '{print $1}'
 ip route get 1.1.1.1 | grep -oP 'src \K\S+'
@@ -1267,10 +1298,11 @@ ip route get 1.1.1.1 | grep -oP 'src \K\S+'
 # MAC address  
 ip link show | grep "link/ether" | awk '{print $2}'
 cat /sys/class/net/$(ip route show default | awk '/default/ {print $5}')/address
+```
 Sudo Commands Count:
 
-
 bash
+```
 # /var/log/sudo/sudo.log dosyasındaki komut sayısı
 grep -c "COMMAND" /var/log/sudo/sudo.log
 
@@ -1376,10 +1408,12 @@ Examples:
 0 0 * * * → Her gün gece yarısı
 0 0 * * 0 → Her Pazar gece yarısı
 */5 9-17 * * 1-5 → Hafta içi, 9-17 arası her 5 dakika
+```
+
 Born2beroot Cron Setup:
 
-
 bash
+```
 # 1. Script'i oluştur ve yetki ver
 sudo nano /root/monitoring.sh
 sudo chmod +x /root/monitoring.sh
@@ -1394,10 +1428,11 @@ sudo crontab -e
 sudo systemctl status cron
 sudo systemctl enable cron
 sudo systemctl start cron
+```
 Cron Commands:
 
-
 bash
+```
 # Crontab görüntüle
 crontab -l          # Current user
 sudo crontab -l     # Root user
@@ -1414,9 +1449,10 @@ tail -f /var/log/cron.log
 grep CRON /var/log/syslog
 Wall Command
 Wall (Write All), tüm aktif terminal oturumlarına mesaj gönderen komuttur.
-
+```
 
 bash
+```
 # Basit mesaj gönderme
 echo "Server maintenance in 10 minutes!" | wall
 
@@ -1451,9 +1487,10 @@ Broadcast message from root@sudenaz42 (pts/0) (Tue Oct 24 15:30:01 2023):
 10. 🛡️ Security Hardening ve Best Practices
 System Hardening Checklist
 1. User Account Security:
-
+```
 
 bash
+```
 # Gereksiz user'ları sil veya kilitle
 sudo usermod -L daemon
 sudo usermod -L bin
@@ -1464,10 +1501,11 @@ sudo sed -i 's/^#PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config
 
 # Empty password'leri yasakla
 sudo sed -i 's/^#PermitEmptyPasswords.*/PermitEmptyPasswords no/' /etc/ssh/sshd_config
+```
 2. Network Security:
 
-
 bash
+```
 # Gereksiz servisleri kapat
 sudo systemctl disable bluetooth
 sudo systemctl disable avahi-daemon  
@@ -1479,10 +1517,12 @@ echo "net.ipv4.conf.all.send_redirects = 0" >> /etc/sysctl.conf
 echo "net.ipv4.conf.default.send_redirects = 0" >> /etc/sysctl.conf
 echo "net.ipv4.conf.all.accept_redirects = 0" >> /etc/sysctl.conf
 echo "net.ipv4.conf.default.accept_redirects = 0" >> /etc/sysctl.conf
+```
+
 3. File System Security:
 
-
 bash
+```
 # Sensitive file permissions
 sudo chmod 600 /etc/shadow
 sudo chmod 600 /etc/gshadow  
@@ -1494,10 +1534,12 @@ find / -type f -perm -002 -exec chmod 644 {} \; 2>/dev/null
 
 # Set sticky bit on /tmp
 sudo chmod +t /tmp
+```
+
 4. Logging ve Auditing:
 
-
 bash
+```
 # Rsyslog yapılandırması
 echo "*.* /var/log/all.log" >> /etc/rsyslog.conf
 
@@ -1530,20 +1572,24 @@ Born2beroot Security Implementation:
 5. Monitoring: System monitoring script + logging
 6. User Management: Least privilege principle
 Incident Response
+```
+
 Log Files to Monitor:
 
-
 bash
+```
 /var/log/auth.log        # Authentication attempts
 /var/log/syslog         # System messages  
 /var/log/kern.log       # Kernel messages
 /var/log/sudo/sudo.log  # Sudo command logs
 /var/log/ufw.log        # Firewall logs
 /var/log/cron.log       # Cron job logs
+```
+
 Security Monitoring Commands:
 
-
 bash
+```
 # Failed login attempts
 sudo grep "Failed password" /var/log/auth.log
 
@@ -1558,7 +1604,9 @@ sudo grep "BLOCK" /var/log/ufw.log
 
 # System changes
 sudo find /etc -type f -newer /var/log/dpkg.log
-11. 📋 Değerlendirme Kriterleri ve Defense Hazırlığı
+```
+
+## 11. 📋 Değerlendirme Kriterleri ve Defense Hazırlığı
 Defense Questions & Answers
 1. Virtual Machine Questions:
 * Q: Virtual Machine nedir ve nasıl çalışır?
@@ -1669,7 +1717,7 @@ sudo apt autoclean
 # Clear logs (if getting too large)
 sudo journalctl --vacuum-time=7d
 
-12. 🔧 Troubleshooting ve Problem Çözme
+## 12. 🔧 Troubleshooting ve Problem Çözme
 Common Issues ve Çözümleri:
 1. SSH Connection Problems:
 
@@ -1746,7 +1794,7 @@ sudo journalctl -u ssh
 sudo journalctl -u cron
 sudo journalctl -u ufw
 
-13. 🎁 Bonus Part Detayları
+## 13. 🎁 Bonus Part Detayları
 WordPress Setup with lighttpd, MariaDB, PHP:
 1. Lighttpd Installation:
 
@@ -1823,7 +1871,7 @@ sda                   8:0    0 30.8G  0 disk
       ├─LVMGroup-tmp  254:6    0   3G  0 lvm   /tmp
       └─LVMGroup-var--log 254:7  0   4G  0 lvm   /var/log
 
-14. 📤 Proje Teslimi ve Signature
+## 14. 📤 Proje Teslimi ve Signature
 Signature Alma İşlemi:
 VirtualBox için:
 
@@ -2157,6 +2205,7 @@ sudo crontab -l
 7. FIREWALL - Sadece 4242 portu açık olmalı
 8. LVM - En az 2 encrypted partition olmalı
 9. 
+
 📚 DEFENSE SORULARI HAZIRLIK:
 Temel Sorular:
 * Virtual Machine nedir?
