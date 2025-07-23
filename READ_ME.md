@@ -2261,6 +2261,12 @@ Bu checklist'i tamamen tamamladıysanız:
 
 **📝 Not:** Bu rehber Born2beRoot projeniz için gereken tüm teorik bilgileri kapsamlı şekilde içermektedir. Defense sırasında karşılaşabileceğiniz tüm soruların cevapları ve pratik komutları burada bulabilirsiniz.
 
-**Made with ❤️ for 42 Students**
+
+### 👨‍💻 Created by Sude Naz Karayıldırım
+
+[![42 Profile](https://img.shields.io/badge/42%20Profile-sukaraya-black?style=flat-square&logo=42&logoColor=white)](https://profile.intra.42.fr/users/skarayil)
+[![GitHub](https://img.shields.io/badge/GitHub-skarayil-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/skarayil)
+
+**⭐ Eğer bu proje işinize yaradıysa, repo'ya star vermeyi unutmayın!**
 
 </div>
