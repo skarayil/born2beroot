@@ -19,7 +19,7 @@
 
 ## 🎯 Proje Genel Bakış - Version 3.6
 
-<img align="right" alt="System Admin" width="300" src="https://media.giphy.com/media/26tn33aiTi1jkl6H6/giphy.gif">
+<img align="right" alt="System Admin" width="300" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZXZvMTJuNWYzZzJ5YmZvemM3cnN5dDlwMDE0cW1yazdzNzZpaXEwNSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/NOGKeoGHEQVgY/giphy.gif">
 
 Born2beroot, **sistem yönetimi ve güvenlik temellerini** öğretmeyi amaçlayan bir projedir. Sanal makine üzerinde minimum service ile güvenli bir server kurulumu yapacaksınız.
 
@@ -910,7 +910,7 @@ which [command]            # Command location
 ```bash
 # VM açılmıyor
 1. VirtualBox logs kontrol et
-2. Backup'tan restore yap
+2. Backuptan restore yap
 3. Safe mode ile boot et
 4. Filesystem check: fsck
 
