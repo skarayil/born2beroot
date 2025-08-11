@@ -412,7 +412,7 @@ sda                    30.8G disk
       └─LVMGroup-var-log 4G  lvm   /var/log
 ```
 
-### 🌐 **WordPress Stack**
+### 🌐 **WordPress Stack** https://wordpress.skarayildirim.com/
 
 | Komponet | Açıklama | Yasak |
 |----------|----------|-------|
