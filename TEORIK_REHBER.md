@@ -1825,7 +1825,7 @@ sudo journalctl -u ufw
 
 ---
 
-## 13. 🎁 Bonus Part Detayları
+## 13. 🎁 Bonus Part Detayları: https://wordpress.skarayildirim.com
 
 ### WordPress Setup with lighttpd, MariaDB, PHP:
 
