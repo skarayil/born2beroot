@@ -1317,85 +1317,188 @@ grep -c "sudo.*COMMAND" /var/log/auth.log
 
 ### Complete Monitoring Script
 
-```bash
+```bash                                                                                                                         
 #!/bin/bash
 
 # Born2beroot System Monitoring Script
-# Bu script her 10 dakikada bir sistem bilgilerini gösterir
+# Created by Sude Naz Karayıldırım
 
-# Renk kodları (isteğe bağlı)
+# Color Codes
 BLUE='\033[0;34m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
-# Banner (isteğe bağlı)
-echo -e "${BLUE}"
-echo "╔══════════════════════════════════════╗"
-echo "║        SYSTEM MONITORING INFO        ║"
-echo "╚══════════════════════════════════════╝"
-echo -e "${NC}"
-
-# 1. Architecture ve Kernel versiyonu
-arch=$(uname -a)
-echo -e "${GREEN}#Architecture:${NC} $arch"
-
-# 2. Fiziksel CPU sayısı
-pcpu=$(grep "physical id" /proc/cpuinfo | sort -u | wc -l)
-echo -e "${GREEN}#CPU physical:${NC} $pcpu"
-
-# 3. Sanal CPU sayısı  
-vcpu=$(grep -c ^processor /proc/cpuinfo)
-echo -e "${GREEN}#vCPU:${NC} $vcpu"
-
-# 4. RAM kullanımı
-memory_usage=$(free -m | awk 'NR==2{printf "%s/%sMB (%.2f%%)", $3,$2,$3*100/$2}')
-echo -e "${GREEN}#Memory Usage:${NC} $memory_usage"
-
-# 5. Disk kullanımı
-disk_usage=$(df -BG | grep '^/dev/' | awk '{used += $3; total += $2} END {printf "%dG/%dG (%d%%)", used, total, used/total*100}')
-echo -e "${GREEN}#Disk Usage:${NC} $disk_usage"
-
-# 6. CPU yük yüzdesi
-cpu_load=$(vmstat 1 2 | tail -1 | awk '{printf "%.1f%%", 100-$15}')
-echo -e "${GREEN}#CPU load:${NC} $cpu_load"
-
-# 7. Son reboot tarihi
-last_boot=$(who -b | awk '{print $3, $4}')
-echo -e "${GREEN}#Last boot:${NC} $last_boot"
-
-# 8. LVM kullanımı
-if [ $(lsblk | grep "lvm" | wc -l) -eq 0 ]; then
-    lvm_use="no"
+# Check if the script is being run interactively (not via cron)
+if [ -t 1 ]; then
+    # We're in an interactive terminal, so allow colors
+    COLOR_ENABLED=true
 else
-    lvm_use="yes"
+    # We're not in an interactive terminal (likely cron), disable colors
+    COLOR_ENABLED=false
 fi
-echo -e "${GREEN}#LVM use:${NC} $lvm_use"
 
-# 9. TCP bağlantıları
-tcp_conn=$(ss -ta | grep ESTAB | wc -l)
-echo -e "${GREEN}#Connections TCP:${NC} $tcp_conn ESTABLISHED"
+# Create the monitoring message
+{
+    if [ "$COLOR_ENABLED" = true ]; then
+        echo -e "${BLUE}"
+    fi
+    echo "╔══════════════════════════════════════╗"
+    echo "║        SYSTEM MONITORING INFO        ║"
+    echo "╚══════════════════════════════════════╝"
+    if [ "$COLOR_ENABLED" = true ]; then
+        echo -e "${NC}"
+    fi
 
-# 10. Aktif kullanıcı sayısı
-user_log=$(who | wc -l)
-echo -e "${GREEN}#User log:${NC} $user_log"
+    # 1. Architecture and Kernel version
+    arch=$(uname -a)
+    if [ "$COLOR_ENABLED" = true ]; then
+        echo -e "${GREEN}#Architecture:${NC} $arch"
+    else
+        echo "#Architecture: $arch"
+    fi
 
-# 11. Network bilgileri
-ip_addr=$(hostname -I | awk '{print $1}')
-mac_addr=$(ip link show | grep "link/ether" | awk '{print $2}' | head -n1)
-echo -e "${GREEN}#Network:${NC} IP $ip_addr ($mac_addr)"
+    # 2. Physical CPU count
+    pcpu=$(grep "physical id" /proc/cpuinfo 2>/dev/null | sort -u | wc -l)
+    if [ "$pcpu" -eq 0 ]; then
+        pcpu=$(nproc)
+    fi
+    if [ "$COLOR_ENABLED" = true ]; then
+        echo -e "${GREEN}#CPU physical:${NC} $pcpu"
+    else
+        echo "#CPU physical: $pcpu"
+    fi
 
-# 12. Sudo komut sayısı
-if [ -f "/var/log/sudo/sudo.log" ]; then
-    sudo_cmd=$(grep -c "COMMAND" /var/log/sudo/sudo.log 2>/dev/null || echo "0")
-else
-    sudo_cmd=$(grep -c "sudo.*COMMAND" /var/log/auth.log 2>/dev/null || echo "0")
-fi
-echo -e "${GREEN}#Sudo:${NC} $sudo_cmd cmd"
+    # 3. Virtual CPU count  
+    vcpu=$(nproc)
+    if [ "$COLOR_ENABLED" = true ]; then
+        echo -e "${GREEN}#vCPU:${NC} $vcpu"
+    else
+        echo "#vCPU: $vcpu"
+    fi
 
-# Alt çizgi (isteğe bağlı)
-echo -e "${BLUE}════════════════════════════════════════${NC}"
+    # 4. RAM usage
+    memory_usage=$(free -m | awk 'NR==2{printf "%s/%sMB (%.2f%%)", $3,$2,$3*100/$2}')
+    if [ "$COLOR_ENABLED" = true ]; then
+        echo -e "${GREEN}#Memory Usage:${NC} $memory_usage"
+    else
+        echo "#Memory Usage: $memory_usage"
+    fi
+
+    # 5. Disk usage - Fixed
+    disk_usage=$(df -h --total 2>/dev/null | grep '^total' | awk '{printf "%s/%s (%s)", $3, $2, $5}')
+    if [ -z "$disk_usage" ]; then
+        disk_usage=$(df -h / | awk 'NR==2{printf "%s/%s (%s)", $3, $2, $5}')
+    fi
+    if [ "$COLOR_ENABLED" = true ]; then
+        echo -e "${GREEN}#Disk Usage:${NC} $disk_usage"
+    else
+        echo "#Disk Usage: $disk_usage"
+    fi
+
+    # 6. CPU load percentage - Fixed
+    cpu_load=$(top -bn1 | grep "Cpu(s)" | sed "s/.*, *\([0-9.]*\)%* id.*/\1/" | awk '{printf "%.1f%%", 100 - $1}')
+    if [ -z "$cpu_load" ]; then
+        cpu_load=$(vmstat 1 2 2>/dev/null | tail -1 | awk '{if(NF>=15) printf "%.1f%%", 100-$15; else print "N/A"}')
+    fi
+    if [ "$COLOR_ENABLED" = true ]; then
+        echo -e "${GREEN}#CPU load:${NC} $cpu_load"
+    else
+        echo "#CPU load: $cpu_load"
+    fi
+
+    # 7. Last reboot date
+    last_boot=$(who -b 2>/dev/null | awk '{print $3, $4}')
+    if [ -z "$last_boot" ]; then
+        last_boot=$(uptime -s 2>/dev/null || date)
+    fi
+    if [ "$COLOR_ENABLED" = true ]; then
+        echo -e "${GREEN}#Last boot:${NC} $last_boot"
+    else
+        echo "#Last boot: $last_boot"
+    fi
+
+    # 8. LVM usage
+    if command -v lsblk >/dev/null 2>&1; then
+        if [ $(lsblk | grep -i "lvm" | wc -l) -eq 0 ]; then
+            lvm_use="no"
+        else
+            lvm_use="yes"
+        fi
+    else
+        if [ -d "/dev/mapper" ] && [ $(ls /dev/mapper/ | grep -v control | wc -l) -gt 0 ]; then
+            lvm_use="yes"
+        else
+            lvm_use="no"
+        fi
+    fi
+    if [ "$COLOR_ENABLED" = true ]; then
+        echo -e "${GREEN}#LVM use:${NC} $lvm_use"
+    else
+        echo "#LVM use: $lvm_use"
+    fi
+
+    # 9. TCP connections
+    if command -v ss >/dev/null 2>&1; then
+        tcp_conn=$(ss -ta 2>/dev/null | grep -i estab | wc -l)
+    else
+        tcp_conn=$(netstat -tan 2>/dev/null | grep ESTABLISHED | wc -l)
+    fi
+    if [ "$COLOR_ENABLED" = true ]; then
+        echo -e "${GREEN}#Connections TCP:${NC} $tcp_conn ESTABLISHED"
+    else
+        echo "#Connections TCP: $tcp_conn ESTABLISHED"
+    fi
+
+    # 10. Active user count
+    user_log=$(who | wc -l)
+    if [ "$COLOR_ENABLED" = true ]; then
+        echo -e "${GREEN}#User log:${NC} $user_log"
+    else
+        echo "#User log: $user_log"
+    fi
+
+    # 11. Network information
+    ip_addr=$(hostname -I 2>/dev/null | awk '{print $1}')
+    if [ -z "$ip_addr" ]; then
+        ip_addr=$(ip route get 8.8.8.8 2>/dev/null | awk 'NR==1 {print $7}')
+    fi
+
+    if command -v ip >/dev/null 2>&1; then
+        mac_addr=$(ip link show 2>/dev/null | grep "link/ether" | awk '{print $2}' | head -n1)
+    else
+        mac_addr=$(ifconfig 2>/dev/null | grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}' | head -n1)
+    fi
+
+    if [ "$COLOR_ENABLED" = true ]; then
+        echo -e "${GREEN}#Network:${NC} IP $ip_addr ($mac_addr)"
+    else
+        echo "#Network: IP $ip_addr ($mac_addr)"
+    fi
+
+    # 12. Sudo command count - Fixed
+    sudo_cmd=0
+    if [ -f "/var/log/sudo/sudo.log" ]; then
+        sudo_cmd=$(grep -c "COMMAND" /var/log/sudo/sudo.log 2>/dev/null || echo "0")
+    elif [ -f "/var/log/auth.log" ]; then
+        sudo_cmd=$(grep -c "sudo.*COMMAND" /var/log/auth.log 2>/dev/null || echo "0")
+    elif [ -f "/var/log/secure" ]; then
+        sudo_cmd=$(grep -c "sudo.*COMMAND" /var/log/secure 2>/dev/null || echo "0")
+    fi
+    if [ "$COLOR_ENABLED" = true ]; then
+        echo -e "${GREEN}#Sudo:${NC} $sudo_cmd cmd"
+    else
+        echo "#Sudo: $sudo_cmd cmd"
+    fi
+
+    # Bottom line (optional)
+    if [ "$COLOR_ENABLED" = true ]; then
+        echo -e "${BLUE}════════════════════════════════════════${NC}"
+    else
+        echo "════════════════════════════════════════"
+    fi
+} | wall
 ```
 
 ### Cron Job Configuration
