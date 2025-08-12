@@ -1323,101 +1323,51 @@ grep -c "sudo.*COMMAND" /var/log/auth.log
 # Born2beroot System Monitoring Script
 # Created by Sude Naz Karayıldırım
 
-# Color Codes
-BLUE='\033[0;34m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-RED='\033[0;31m'
-NC='\033[0m'
-
-# Check if the script is being run interactively (not via cron)
-if [ -t 1 ]; then
-    # We're in an interactive terminal, so allow colors
-    COLOR_ENABLED=true
-else
-    # We're not in an interactive terminal (likely cron), disable colors
-    COLOR_ENABLED=false
-fi
-
 # Create the monitoring message
 {
-    if [ "$COLOR_ENABLED" = true ]; then
-        echo -e "${BLUE}"
-    fi
     echo "╔══════════════════════════════════════╗"
     echo "║        SYSTEM MONITORING INFO        ║"
     echo "╚══════════════════════════════════════╝"
-    if [ "$COLOR_ENABLED" = true ]; then
-        echo -e "${NC}"
-    fi
 
     # 1. Architecture and Kernel version
     arch=$(uname -a)
-    if [ "$COLOR_ENABLED" = true ]; then
-        echo -e "${GREEN}#Architecture:${NC} $arch"
-    else
-        echo "#Architecture: $arch"
-    fi
+    echo "#Architecture: $arch"
 
     # 2. Physical CPU count
     pcpu=$(grep "physical id" /proc/cpuinfo 2>/dev/null | sort -u | wc -l)
     if [ "$pcpu" -eq 0 ]; then
         pcpu=$(nproc)
     fi
-    if [ "$COLOR_ENABLED" = true ]; then
-        echo -e "${GREEN}#CPU physical:${NC} $pcpu"
-    else
-        echo "#CPU physical: $pcpu"
-    fi
+    echo "#CPU physical: $pcpu"
 
     # 3. Virtual CPU count  
     vcpu=$(nproc)
-    if [ "$COLOR_ENABLED" = true ]; then
-        echo -e "${GREEN}#vCPU:${NC} $vcpu"
-    else
-        echo "#vCPU: $vcpu"
-    fi
+    echo "#vCPU: $vcpu"
 
     # 4. RAM usage
     memory_usage=$(free -m | awk 'NR==2{printf "%s/%sMB (%.2f%%)", $3,$2,$3*100/$2}')
-    if [ "$COLOR_ENABLED" = true ]; then
-        echo -e "${GREEN}#Memory Usage:${NC} $memory_usage"
-    else
-        echo "#Memory Usage: $memory_usage"
-    fi
+    echo "#Memory Usage: $memory_usage"
 
     # 5. Disk usage - Fixed
     disk_usage=$(df -h --total 2>/dev/null | grep '^total' | awk '{printf "%s/%s (%s)", $3, $2, $5}')
     if [ -z "$disk_usage" ]; then
         disk_usage=$(df -h / | awk 'NR==2{printf "%s/%s (%s)", $3, $2, $5}')
     fi
-    if [ "$COLOR_ENABLED" = true ]; then
-        echo -e "${GREEN}#Disk Usage:${NC} $disk_usage"
-    else
-        echo "#Disk Usage: $disk_usage"
-    fi
+    echo "#Disk Usage: $disk_usage"
 
     # 6. CPU load percentage - Fixed
     cpu_load=$(top -bn1 | grep "Cpu(s)" | sed "s/.*, *\([0-9.]*\)%* id.*/\1/" | awk '{printf "%.1f%%", 100 - $1}')
     if [ -z "$cpu_load" ]; then
         cpu_load=$(vmstat 1 2 2>/dev/null | tail -1 | awk '{if(NF>=15) printf "%.1f%%", 100-$15; else print "N/A"}')
     fi
-    if [ "$COLOR_ENABLED" = true ]; then
-        echo -e "${GREEN}#CPU load:${NC} $cpu_load"
-    else
-        echo "#CPU load: $cpu_load"
-    fi
+    echo "#CPU load: $cpu_load"
 
     # 7. Last reboot date
     last_boot=$(who -b 2>/dev/null | awk '{print $3, $4}')
     if [ -z "$last_boot" ]; then
         last_boot=$(uptime -s 2>/dev/null || date)
     fi
-    if [ "$COLOR_ENABLED" = true ]; then
-        echo -e "${GREEN}#Last boot:${NC} $last_boot"
-    else
-        echo "#Last boot: $last_boot"
-    fi
+    echo "#Last boot: $last_boot"
 
     # 8. LVM usage
     if command -v lsblk >/dev/null 2>&1; then
@@ -1433,11 +1383,7 @@ fi
             lvm_use="no"
         fi
     fi
-    if [ "$COLOR_ENABLED" = true ]; then
-        echo -e "${GREEN}#LVM use:${NC} $lvm_use"
-    else
-        echo "#LVM use: $lvm_use"
-    fi
+    echo "#LVM use: $lvm_use"
 
     # 9. TCP connections
     if command -v ss >/dev/null 2>&1; then
@@ -1445,19 +1391,11 @@ fi
     else
         tcp_conn=$(netstat -tan 2>/dev/null | grep ESTABLISHED | wc -l)
     fi
-    if [ "$COLOR_ENABLED" = true ]; then
-        echo -e "${GREEN}#Connections TCP:${NC} $tcp_conn ESTABLISHED"
-    else
-        echo "#Connections TCP: $tcp_conn ESTABLISHED"
-    fi
+    echo "#Connections TCP: $tcp_conn ESTABLISHED"
 
     # 10. Active user count
     user_log=$(who | wc -l)
-    if [ "$COLOR_ENABLED" = true ]; then
-        echo -e "${GREEN}#User log:${NC} $user_log"
-    else
-        echo "#User log: $user_log"
-    fi
+    echo "#User log: $user_log"
 
     # 11. Network information
     ip_addr=$(hostname -I 2>/dev/null | awk '{print $1}')
@@ -1471,11 +1409,7 @@ fi
         mac_addr=$(ifconfig 2>/dev/null | grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}' | head -n1)
     fi
 
-    if [ "$COLOR_ENABLED" = true ]; then
-        echo -e "${GREEN}#Network:${NC} IP $ip_addr ($mac_addr)"
-    else
-        echo "#Network: IP $ip_addr ($mac_addr)"
-    fi
+    echo "#Network: IP $ip_addr ($mac_addr)"
 
     # 12. Sudo command count - Fixed
     sudo_cmd=0
@@ -1486,18 +1420,10 @@ fi
     elif [ -f "/var/log/secure" ]; then
         sudo_cmd=$(grep -c "sudo.*COMMAND" /var/log/secure 2>/dev/null || echo "0")
     fi
-    if [ "$COLOR_ENABLED" = true ]; then
-        echo -e "${GREEN}#Sudo:${NC} $sudo_cmd cmd"
-    else
-        echo "#Sudo: $sudo_cmd cmd"
-    fi
+    echo "#Sudo: $sudo_cmd cmd"
 
     # Bottom line (optional)
-    if [ "$COLOR_ENABLED" = true ]; then
-        echo -e "${BLUE}════════════════════════════════════════${NC}"
-    else
-        echo "════════════════════════════════════════"
-    fi
+    echo "════════════════════════════════════════"
 } | wall
 ```
 
@@ -1533,8 +1459,8 @@ sudo chmod +x /root/monitoring.sh
 # 2. Crontab düzenle  
 sudo crontab -e
 
-# 3. Bu satırı ekle (her 10 dakikada bir, wall ile tüm terminallere gönder)
-*/10 * * * * /root/monitoring.sh | wall
+# 3. Bu satırı ekle (her 10 dakikada bir tüm terminallere gönder)
+*/10 * * * * /root/monitoring.sh
 
 # 4. Cron servisini kontrol et
 sudo systemctl status cron
